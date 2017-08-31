@@ -1,9 +1,10 @@
+import _ from "lodash"; 
 import React, { Component } from 'react';
 import SearchBar from "./search_bar.js"; 
 import VideoList from "./video_list.js"; 
 import VideoDetail from "./video_viewer.js"; 
 import YTSearch from "youtube-api-search";
-const API_KEY = "Fill your API key here";
+const API_KEY = "";
 
 
 
@@ -11,16 +12,21 @@ export default class App extends Component {
 
 
 	constructor(props){
+		// console.log("constructor called")
 		super(props); 
+		this.videoSearch(props.initialLoad); 
 		this.state = {
 			videos:[], 
 			selectedVideo: null
-		};
-		// this.updateSelection = this.updateSelection.bind(this); 
-		YTSearch({key: API_KEY, term: "India"}, (videos) => {
+		};		
+	}
+
+
+	videoSearch(searchTerm){
+		YTSearch({key: API_KEY, term: searchTerm}, (videos) => {
 			console.log("The Youtube just responded"); 
 			console.log(videos); 
-			this.setState(
+			this.setState( 
 				{
 					videos: videos, 
 					selectedVideo: videos[0]
@@ -30,24 +36,21 @@ export default class App extends Component {
 	}
 
 
-
-	// udpateSelection(selectedVideo){
-	// 	this.setState({selectedVideo})
-	// }
-
-
     render() {
-    	// console.log("Inside App render method"); 
+
+    	const videoSearch = _.debounce((term) => {this.videoSearch(term)}, 300); 
+
 	    return (
 
 	      	<div>
-	      		<SearchBar/>
+	      		<SearchBar onSearchTermChange={videoSearch}/>
 	      		<VideoDetail video={this.state.selectedVideo}/>
 	      		<VideoList 
 	      		  videos={this.state.videos}
 	      		  onVideoSelect={(selectedVideo) => this.setState({selectedVideo})}
 	      		/>
 	     	</div>
+
     	);
   	}
 
